@@ -1,470 +1,1738 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioMech Lab - Optimización Biomecánica ✨ AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        :root {
-            --accent: #ef4444; 
-            --bg: #030303;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioMech Lab — Precision Diagnostics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #111418;
+    --bg3: #181d23;
+    --bg4: #1f252d;
+    --cyan: #00d4ff;
+    --cyan2: #00a8cc;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --cyan-border: rgba(0,212,255,0.25);
+    --text: #e8edf2;
+    --text-dim: #7a8a99;
+    --text-muted: #4a5568;
+    --red: #ff4757;
+    --green: #00c896;
+    --yellow: #ffd32a;
+    --border: rgba(255,255,255,0.07);
+    --card: #13181f;
+  }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #f1f1f1;
-            scroll-behavior: smooth;
-        }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-        .mono { font-family: 'JetBrains Mono', monospace; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
 
-        .glass-panel {
-            background: rgba(8, 8, 8, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    height: 52px;
+    gap: 2rem;
+  }
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+  .logo span { color: var(--text); }
 
-        #canvas-container {
-            width: 100%;
-            height: 600px;
-            cursor: grab;
-            position: relative;
-            background: radial-gradient(circle at center, #111 0%, #030303 100%);
-            border-radius: 24px;
-            overflow: hidden;
-        }
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    flex: 1;
+    justify-content: center;
+  }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--text);
+    background: var(--bg4);
+  }
+  .nav-links a.active {
+    color: var(--cyan);
+    border-bottom: 2px solid var(--cyan);
+    border-radius: 0;
+  }
 
-        #canvas-container:active { cursor: grabbing; }
+  .nav-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    max-width: 220px;
+    flex: 1;
+  }
+  .nav-search input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 0.8rem;
+    width: 100%;
+  }
+  .nav-search input::placeholder { color: var(--text-muted); }
+  .nav-icon {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0.2rem;
+  }
+  .nav-icon:hover { color: var(--cyan); }
 
-        .data-tag {
-            border-left: 3px solid var(--accent);
-            padding-left: 15px;
-            background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
-        }
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
 
-        .video-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  /* ── HOME HERO ── */
+  .hero {
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border: 1px solid var(--cyan-border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 em {
+    color: var(--cyan);
+    font-style: normal;
+  }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+  }
 
-        .video-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.2);
-        }
+  /* ── BODY EXPLORER ── */
+  .body-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+  .body-explorer {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .body-model-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .body-canvas {
+    width: 100%;
+    height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: crosshair;
+  }
+  .body-svg-wrap {
+    position: relative;
+    height: 380px;
+  }
+  .body-svg-wrap svg {
+    height: 100%;
+    width: auto;
+  }
+  /* Hotspots on body */
+  .hotspot {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--cyan-dim);
+    border: 2px solid var(--cyan);
+    cursor: pointer;
+    transform: translate(-50%,-50%);
+    transition: all 0.2s;
+    animation: pulse 2.5s infinite;
+  }
+  .hotspot:hover, .hotspot.active {
+    background: var(--cyan);
+    box-shadow: 0 0 20px var(--cyan);
+    animation: none;
+  }
+  .hotspot[data-zone="hombro-d"] { top: 23%; left: 62%; }
+  .hotspot[data-zone="hombro-i"] { top: 23%; left: 38%; }
+  .hotspot[data-zone="codo-d"] { top: 40%; left: 68%; }
+  .hotspot[data-zone="codo-i"] { top: 40%; left: 32%; }
+  .hotspot[data-zone="rodilla-d"] { top: 68%; left: 58%; }
+  .hotspot[data-zone="rodilla-i"] { top: 68%; left: 42%; }
+  .hotspot[data-zone="tobillo-d"] { top: 86%; left: 57%; }
+  .hotspot[data-zone="tobillo-i"] { top: 86%; left: 43%; }
+  .hotspot[data-zone="lumbar"] { top: 47%; left: 50%; }
 
-        .active-filter {
-            background-color: var(--accent) !important;
-            color: white !important;
-        }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(0,212,255,0); }
+  }
 
-        .ai-glow {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-            animation: pulse-ai 2s infinite ease-in-out;
-        }
+  .model-label {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .model-instructions {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
 
-        @keyframes pulse-ai {
-            0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
-            100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }
-        }
+  /* Panel lateral */
+  .panel-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .panel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+  .panel-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .panel-header::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 6px var(--cyan);
+  }
+  .panel-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .panel-item {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+  }
+  .panel-item-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    min-width: 55px;
+  }
+  .panel-item-value {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .panel-item-value.highlight { color: var(--cyan); }
+  .panel-item-value.warn { color: var(--yellow); }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #030303; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-    </style>
+  .panel-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 1rem 0;
+  }
+
+  .btn-cyan {
+    display: block;
+    width: 100%;
+    background: var(--cyan);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn-cyan:hover {
+    background: var(--cyan2);
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    transform: translateY(-1px);
+  }
+  .btn-outline {
+    display: inline-block;
+    border: 1px solid var(--cyan-border);
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-outline:hover {
+    background: var(--cyan);
+    color: #000;
+  }
+
+  /* Zones tags */
+  .zone-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .zone-tag {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .zone-tag:hover {
+    border-color: var(--cyan-border);
+    color: var(--cyan);
+    background: var(--cyan-dim);
+  }
+  .zone-tag.active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: var(--cyan-dim);
+  }
+
+  /* ── SECTION TITLES ── */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+  }
+  .section-rule {
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0.75rem 0 2rem;
+  }
+  .section-sub {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── VIDEO GRID ── */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .video-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .video-card:hover {
+    border-color: var(--cyan-border);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .video-thumb {
+    position: relative;
+    height: 160px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .video-thumb-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.4);
+    transition: filter 0.3s;
+  }
+  .video-card:hover .video-thumb-bg { filter: brightness(0.55); }
+  .play-btn {
+    position: relative;
+    z-index: 1;
+    width: 44px; height: 44px;
+    background: rgba(0,212,255,0.9);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .play-btn::after {
+    content: '';
+    border-left: 14px solid #000;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    margin-left: 3px;
+  }
+  .video-card:hover .play-btn {
+    background: var(--cyan);
+    box-shadow: 0 0 20px var(--cyan);
+    transform: scale(1.1);
+  }
+  .video-duration {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0,0,0,0.8);
+    color: var(--text);
+    font-size: 0.72rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+  }
+  .video-info {
+    padding: 0.9rem 1rem;
+  }
+  .video-tags {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--bg4);
+  }
+  .tag.cyan { color: var(--cyan); border-color: var(--cyan-border); background: var(--cyan-dim); }
+  .video-title {
+    font-weight: 600;
+    font-size: 0.88rem;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .video-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ── CALCULADORA ── */
+  .calc-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .calc-header {
+    background: var(--bg3);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .calc-header-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .calc-body {
+    padding: 2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .calc-inputs { display: flex; flex-direction: column; gap: 1.25rem; }
+  .field-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .field-row { display: flex; gap: 0.5rem; align-items: center; }
+  .field-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: 'Space Mono', monospace;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-input:focus { border-color: var(--cyan); }
+  .field-unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .calc-result {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  .result-hidden { display: none; }
+  .result-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .result-score {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .result-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+  }
+  .result-bars { display: flex; flex-direction: column; gap: 0.75rem; }
+  .result-bar-row { display: flex; flex-direction: column; gap: 0.3rem; }
+  .result-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+  .result-bar-track {
+    height: 5px;
+    background: var(--bg4);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .result-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--cyan);
+    transition: width 0.6s ease;
+  }
+  .result-bar-fill.warn { background: var(--yellow); }
+  .result-bar-fill.ok { background: var(--green); }
+  .result-protocol {
+    margin-top: 1.25rem;
+    padding: 1rem;
+    background: var(--bg4);
+    border-radius: 8px;
+    border-left: 3px solid var(--cyan);
+  }
+  .protocol-title {
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-bottom: 0.25rem;
+  }
+  .protocol-desc { font-size: 0.75rem; color: var(--text-dim); }
+  .result-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .result-placeholder-icon { font-size: 2rem; opacity: 0.4; }
+
+  /* ── HERRAMIENTAS PAGE ── */
+  .tools-header {
+    padding: 2.5rem 2rem 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .tools-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+  }
+  .tools-sub { color: var(--text-dim); font-size: 0.85rem; }
+  .precision-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--cyan-border);
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .precision-badge:hover { background: var(--cyan); color: #000; }
+  .precision-badge::before {
+    content: '◎';
+    animation: spin 3s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .tools-divider {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .tools-layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  /* Clinical params panel */
+  .params-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .params-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .params-icon { color: var(--cyan); font-size: 1rem; }
+  .params-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .param-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .param-label {
+    font-size: 0.72rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .param-select {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    color: var(--text);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8a99' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    transition: border-color 0.2s;
+  }
+  .param-select:focus { border-color: var(--cyan); }
+  .param-divider { border: none; border-top: 1px solid var(--border); }
+  .tissues-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tissue-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.73rem;
+    font-weight: 500;
+  }
+  .tissue-tag.red { background: rgba(255,71,87,0.15); color: #ff6b7a; border: 1px solid rgba(255,71,87,0.3); }
+  .tissue-tag.gray { background: var(--bg4); color: var(--text-dim); border: 1px solid var(--border); }
+  .tissue-tag::before { content: '●'; font-size: 0.5rem; }
+
+  /* Live body preview */
+  .live-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .live-badge {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+  .live-label {
+    position: absolute;
+    bottom: 0.6rem;
+    left: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .live-body-icon {
+    font-size: 3rem;
+    opacity: 0.25;
+    filter: hue-rotate(180deg);
+  }
+
+  /* Results panel */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .results-count {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  .results-count strong { color: var(--text); }
+  .results-actions { display: flex; gap: 0.5rem; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--cyan-border); color: var(--cyan); }
+  .btn-white {
+    background: var(--text);
+    border: 1px solid var(--text);
+    color: #000;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .btn-white:hover { background: var(--cyan); border-color: var(--cyan); }
+
+  .protocols-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .protocol-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .protocol-card:hover {
+    border-color: var(--cyan-border);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .protocol-card.wide {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+  }
+  .protocol-thumb {
+    height: 180px;
+    background: var(--bg3);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .protocol-card.wide .protocol-thumb {
+    height: 100%;
+    min-height: 200px;
+  }
+  .proto-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.35);
+    transition: filter 0.3s;
+  }
+  .protocol-card:hover .proto-bg { filter: brightness(0.5); }
+  .proto-play {
+    position: relative;
+    z-index: 1;
+    width: 48px; height: 48px;
+    background: rgba(0,212,255,0.85);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .proto-play::after {
+    content: '';
+    border-left: 16px solid #000;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    margin-left: 4px;
+  }
+  .protocol-card:hover .proto-play {
+    background: var(--cyan);
+    box-shadow: 0 0 24px var(--cyan);
+  }
+  .proto-time {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0,0,0,0.85);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+  }
+  .protocol-info {
+    padding: 1rem 1.1rem;
+  }
+  .protocol-card.wide .protocol-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .proto-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .proto-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .proto-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .proto-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+  .proto-effectiveness {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  .effectiveness-bar-track {
+    flex: 1;
+    height: 4px;
+    background: var(--bg4);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-right: 0.75rem;
+  }
+  .effectiveness-bar-fill {
+    height: 100%;
+    background: var(--cyan);
+    border-radius: 2px;
+  }
+  .effectiveness-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: var(--bg2);
+  }
+  .footer-logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .footer-links a {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .footer-copy span { color: var(--cyan); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--bg3);
+    border: 1px solid var(--cyan-border);
+    color: var(--text);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 280px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-title { color: var(--cyan); font-weight: 600; font-size: 0.8rem; margin-bottom: 0.2rem; }
+
+  /* ── BODY SVG HUMAN ── */
+  .human-figure {
+    position: relative;
+    height: 380px;
+    width: 200px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .body-explorer { grid-template-columns: 1fr; }
+    .video-grid { grid-template-columns: 1fr 1fr; }
+    .calc-body { grid-template-columns: 1fr; }
+    .tools-layout { grid-template-columns: 1fr; }
+    .protocols-grid { grid-template-columns: 1fr; }
+    .protocol-card.wide { grid-template-columns: 1fr; }
+    nav { gap: 1rem; }
+    .nav-search { display: none; }
+    .hero h1 { font-size: 2rem; }
+  }
+  @media (max-width: 480px) {
+    .video-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Gradient mesh background subtle */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse 600px 400px at 15% 20%, rgba(0,212,255,0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 500px 300px at 85% 75%, rgba(0,200,150,0.02) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page { position: relative; z-index: 1; }
+
+  /* Scan line effect on header */
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 3s ease-in-out infinite;
+  }
+  @keyframes scan {
+    0%,100% { opacity: 0; transform: translateX(-100%); }
+    50% { opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+</style>
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 glass-panel border-b border-white/5 px-8 py-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
-                <h1 class="text-xl font-black tracking-tighter uppercase italic">BioMech <span class="text-red-600">Lab</span></h1>
-            </div>
+<!-- NAVBAR -->
+<nav>
+  <a class="logo" onclick="showPage('home')">BioMech <span>Lab</span></a>
+  <div class="nav-search">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+    <input type="text" placeholder="Buscar Protocolos o Ejercicios…">
+  </div>
+  <div class="nav-links">
+    <a id="nav-explorar" onclick="showPage('home')" class="active">Explorar 3D</a>
+    <a id="nav-herramientas" onclick="showPage('tools')">Herramientas</a>
+  </div>
+  <span class="nav-icon" title="Ajustes">⚙</span>
+  <span class="nav-icon" title="Perfil">◎</span>
+</nav>
 
-            <div class="flex-1 max-w-md relative hidden md:block">
-                <input id="ai-search" type="text" placeholder="✨ Describe tu molestia a la IA..." class="w-full bg-neutral-900 border border-white/10 rounded-full py-2 px-10 text-xs focus:outline-none focus:border-red-600 transition-all">
-                <button onclick="askAISymptoms()" class="absolute right-3 top-1.5 p-1 text-red-500 hover:text-white transition-colors">
-                    ✨
-                </button>
-            </div>
+<!-- ======== PAGE: HOME ======== -->
+<div class="page active" id="page-home">
 
-            <nav class="flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-neutral-400">
-                <a href="#core" class="hover:text-white transition-colors">Explorar 3D</a>
-                <a href="#herramientas" class="hover:text-white transition-colors">Herramientas</a>
-            </nav>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">◈ Sistema Interactivo de Diagnóstico Biomecánico</div>
+    <h1>¿Dónde te <em>duele</em>?</h1>
+    <p>Selecciona una zona en el modelo anatómico para ver tendones, tejidos y ejercicios correctivos específicos.</p>
+  </div>
+
+  <!-- Body Explorer -->
+  <div class="body-section">
+    <div class="body-explorer">
+
+      <!-- 3D Model -->
+      <div class="body-model-wrap">
+        <div class="body-canvas">
+          <div class="body-svg-wrap">
+            <!-- Human figure SVG -->
+            <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:auto;">
+              <defs>
+                <radialGradient id="bodyGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <!-- Body glow bg -->
+              <ellipse cx="100" cy="210" rx="80" ry="180" fill="url(#bodyGlow)"/>
+              <!-- Head -->
+              <ellipse cx="100" cy="38" rx="24" ry="28" fill="none" stroke="#2a3a4a" stroke-width="1.5"/>
+              <!-- Neck -->
+              <rect x="91" y="62" width="18" height="18" rx="4" fill="none" stroke="#2a3a4a" stroke-width="1.5"/>
+              <!-- Torso -->
+              <path d="M65 80 L55 170 L145 170 L135 80 Z" fill="none" stroke="#2a3a4a" stroke-width="1.5"/>
+              <!-- Chest lines -->
+              <line x1="100" y1="85" x2="100" y2="165" stroke="#1e2d3a" stroke-width="1"/>
+              <line x1="70" y1="110" x2="130" y2="110" stroke="#1e2d3a" stroke-width="1"/>
+              <line x1="68" y1="135" x2="132" y2="135" stroke="#1e2d3a" stroke-width="1"/>
+              <!-- Left arm -->
+              <path d="M65 85 L42 130 L36 180" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Right arm -->
+              <path d="M135 85 L158 130 L164 180" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Left forearm -->
+              <path d="M36 180 L30 230 L32 260" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Right forearm -->
+              <path d="M164 180 L170 230 L168 260" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Left hand -->
+              <ellipse cx="31" cy="268" rx="8" ry="10" fill="none" stroke="#2a3a4a" stroke-width="1.2"/>
+              <!-- Right hand -->
+              <ellipse cx="169" cy="268" rx="8" ry="10" fill="none" stroke="#2a3a4a" stroke-width="1.2"/>
+              <!-- Hips -->
+              <path d="M60 168 L58 200 L142 200 L140 168Z" fill="none" stroke="#2a3a4a" stroke-width="1.5"/>
+              <!-- Left leg -->
+              <path d="M75 200 L68 300 L70 370" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Right leg -->
+              <path d="M125 200 L132 300 L130 370" fill="none" stroke="#2a3a4a" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Feet -->
+              <ellipse cx="69" cy="378" rx="12" ry="8" fill="none" stroke="#2a3a4a" stroke-width="1.2"/>
+              <ellipse cx="131" cy="378" rx="12" ry="8" fill="none" stroke="#2a3a4a" stroke-width="1.2"/>
+              <!-- Muscle highlights - selected zone coloring via JS overlay -->
+              <!-- Shoulder markers -->
+              <circle id="hs-hombro-d" cx="137" cy="90" r="8" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="hombro-d" style="cursor:pointer" onclick="selectZone('hombro-d')"/>
+              <circle id="hs-hombro-i" cx="63" cy="90" r="8" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="hombro-i" style="cursor:pointer" onclick="selectZone('hombro-i')"/>
+              <!-- Elbow markers -->
+              <circle id="hs-codo-d" cx="158" cy="170" r="7" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="codo-d" style="cursor:pointer" onclick="selectZone('codo-d')"/>
+              <circle id="hs-codo-i" cx="42" cy="170" r="7" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="codo-i" style="cursor:pointer" onclick="selectZone('codo-i')"/>
+              <!-- Lumbar -->
+              <circle id="hs-lumbar" cx="100" cy="185" r="9" fill="rgba(255,71,87,0.1)" stroke="#ff4757" stroke-width="1.5" class="body-hotspot" data-zone="lumbar" style="cursor:pointer" onclick="selectZone('lumbar')"/>
+              <!-- Knee markers -->
+              <circle id="hs-rodilla-d" cx="130" cy="298" r="9" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="rodilla-d" style="cursor:pointer" onclick="selectZone('rodilla-d')"/>
+              <circle id="hs-rodilla-i" cx="70" cy="298" r="9" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="rodilla-i" style="cursor:pointer" onclick="selectZone('rodilla-i')"/>
+              <!-- Ankle markers -->
+              <circle id="hs-tobillo-d" cx="131" cy="358" r="7" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="tobillo-d" style="cursor:pointer" onclick="selectZone('tobillo-d')"/>
+              <circle id="hs-tobillo-i" cx="69" cy="358" r="7" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5" class="body-hotspot" data-zone="tobillo-i" style="cursor:pointer" onclick="selectZone('tobillo-i')"/>
+            </svg>
+          </div>
+          <div class="model-label">Modelo 3D Interactivo</div>
+          <div class="model-instructions">← Haz clic en una zona</div>
         </div>
-    </header>
+      </div>
 
-    <main class="max-w-7xl mx-auto px-6 py-12">
-        
-        <!-- Core Biomecánico -->
-        <section id="core" class="mb-24">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black text-white italic uppercase tracking-tighter mb-2">¿DÓNDE TE DUELE?</h2>
-                <p class="text-neutral-500 text-sm">Selecciona en el modelo para ver tendones y ejercicios específicos</p>
+      <!-- Panel Lateral -->
+      <div class="panel-lateral">
+        <div class="panel-card">
+          <div class="panel-header">Panel Lateral Interactivo</div>
+          <div id="panel-content">
+            <div class="panel-empty">
+              Selecciona una zona del cuerpo para ver diagnóstico biomecánico.
             </div>
-
-            <div class="grid lg:grid-cols-12 gap-8 items-start">
-                <div class="lg:col-span-8 relative">
-                    <div id="canvas-container" class="border border-white/5">
-                        <div id="loader" class="absolute inset-0 bg-black flex items-center justify-center z-50 transition-opacity duration-1000">
-                            <span class="mono text-[10px] uppercase tracking-[0.5em] text-red-600 animate-pulse">Cargando Estructura Dual</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-4">
-                    <div class="glass-panel p-8 rounded-3xl border-t-4 border-red-600 shadow-2xl space-y-8">
-                        <h3 class="text-xs font-black text-red-600 uppercase tracking-[0.3em] flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></span>
-                            Panel de Diagnóstico
-                        </h3>
-                        
-                        <div class="space-y-6" id="diagnostic-data">
-                            <div class="data-tag">
-                                <span class="text-neutral-500 text-[10px] uppercase font-bold tracking-widest block mb-1">Zona</span>
-                                <span id="display-zona" class="text-2xl font-black text-white italic">Selecciona punto...</span>
-                            </div>
-                            <div class="data-tag">
-                                <span class="text-neutral-500 text-[10px] uppercase font-bold tracking-widest block mb-1">Tejido</span>
-                                <span id="display-tejido" class="text-lg font-bold text-red-500">-</span>
-                            </div>
-                            <div class="data-tag">
-                                <span class="text-neutral-500 text-[10px] uppercase font-bold tracking-widest block mb-1">Estado</span>
-                                <p id="display-estado" class="text-xs text-neutral-400 leading-relaxed italic">Haz clic en los marcadores del modelo.</p>
-                            </div>
-                        </div>
-
-                        <div class="pt-4 space-y-3">
-                            <button id="ai-deep-analysis" onclick="runAIDeepAnalysis()" class="w-full bg-neutral-900 border border-red-600/30 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest hover:border-red-600 transition-all flex items-center justify-center gap-2 ai-glow">
-                                ✨ Análisis Bio-Científico AI
-                            </button>
-                            <button onclick="scrollToVideos()" class="w-full bg-red-600 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-                                Ver Videos de Corrección
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AI Modal / Result Area -->
-        <div id="ai-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-            <div class="glass-panel max-w-2xl w-full p-8 rounded-[32px] border-red-600/50 max-h-[80vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black italic uppercase text-white">✨ Informe Inteligente BioMech</h3>
-                    <button onclick="closeAIModal()" class="text-neutral-500 hover:text-white">✕</button>
-                </div>
-                <div id="ai-content" class="text-sm text-neutral-300 leading-relaxed space-y-4">
-                    <!-- AI Content Here -->
-                </div>
-            </div>
+          </div>
         </div>
 
-        <!-- Calculadora de Salud Articular -->
-        <section id="herramientas" class="mb-20">
-            <div class="max-w-4xl mx-auto glass-panel p-12 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-red-600/5 rounded-full blur-3xl"></div>
-                
-                <h3 class="text-2xl font-black text-white italic uppercase mb-10 flex items-center gap-4">
-                    <span class="w-1.5 h-6 bg-red-600"></span>
-                    Calculadora de Salud Articular
-                </h3>
+        <div class="panel-card">
+          <div class="panel-header" style="margin-bottom:0.75rem">Selección Rápida</div>
+          <div class="zone-grid">
+            <div class="zone-tag" onclick="selectZone('rodilla-d')">Rodilla</div>
+            <div class="zone-tag" onclick="selectZone('hombro-d')">Hombro</div>
+            <div class="zone-tag" onclick="selectZone('tobillo-d')">Tobillo</div>
+            <div class="zone-tag" onclick="selectZone('lumbar')">Lumbar</div>
+            <div class="zone-tag" onclick="selectZone('codo-d')">Codo</div>
+            <div class="zone-tag" onclick="showPage('tools')">+ Avanzado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div class="grid md:grid-cols-2 gap-12 items-end">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-[10px] text-neutral-500 uppercase font-black tracking-widest mb-3">Peso Máximo de Entrenamiento (KG)</label>
-                            <input id="weight-input" type="number" value="100" class="w-full bg-black border-b-2 border-neutral-800 py-4 text-5xl font-black text-red-600 focus:outline-none focus:border-red-600 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-neutral-500 uppercase font-black tracking-widest mb-3">Frecuencia Semanal (Días)</label>
-                            <select id="freq-input" class="w-full bg-neutral-900 border border-white/5 p-3 rounded-lg text-xs font-bold focus:outline-none">
-                                <option value="1">1-2 Días</option>
-                                <option value="2">3-4 Días</option>
-                                <option value="3">5+ Días</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <button onclick="calculateRisk()" class="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-red-600 hover:text-white transition-all uppercase italic tracking-tighter text-sm shadow-xl">
-                            Calcular Protocolo
-                        </button>
-                        <button onclick="generateAIDeload()" class="w-full bg-neutral-900 border border-red-500/20 text-red-500 font-bold py-4 rounded-2xl hover:border-red-600 transition-all uppercase text-[10px] tracking-widest ai-glow">
-                            ✨ Generar Descarga Optimizada AI
-                        </button>
-                    </div>
-                </div>
+  <!-- Video Library -->
+  <div class="section">
+    <div class="section-title">Biblioteca de Ejercicios Correctivos</div>
+    <hr class="section-rule">
+    <div class="video-grid">
 
-                <div id="result-box" class="hidden mt-12 p-8 bg-neutral-900 rounded-3xl border border-white/10 animate-fadeIn">
-                    <div class="flex flex-col md:flex-row gap-10 items-center">
-                        <div class="text-center md:border-r border-white/5 md:pr-10">
-                            <span class="text-[9px] text-neutral-500 uppercase font-bold tracking-widest">Score de Riesgo</span>
-                            <div id="score-val" class="text-6xl font-black text-red-600 mt-2 tracking-tighter">0.0</div>
-                        </div>
-                        <div class="flex-1 space-y-4">
-                            <h4 class="text-xs font-black uppercase text-white tracking-widest">Sugerencias:</h4>
-                            <p id="sug-text" class="text-xs text-neutral-400 leading-relaxed italic"></p>
-                        </div>
-                    </div>
-                </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#1a2a1a,#0d1f2d)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">3:00</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Isometría</span>
+            <span class="tag">#Patela</span>
+          </div>
+          <div class="video-title">Isometría de Rodilla</div>
+          <div class="video-desc">Carga sostenida para desensibilización del tendón rotuliano sin comprometer la articulación.</div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#1a1a2a,#1d0d2d)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">3:00</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Movilidad</span>
+            <span class="tag">#Cadera</span>
+          </div>
+          <div class="video-title">Movilidad de Cadera</div>
+          <div class="video-desc">Liberación de restricciones capsulares que compensan sobre la rodilla durante flexión profunda.</div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#1f1a10,#2d1a0d)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">3:00</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Estabilidad</span>
+            <span class="tag">#Core</span>
+            <span class="tag">#Patela</span>
+          </div>
+          <div class="video-title">Estabilidad Core</div>
+          <div class="video-desc">Activación profunda del núcleo para redistribuir cargas articulares durante movimientos funcionales.</div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#0d1f1a,#1a2d1a)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">4:30</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Propiocepción</span>
+            <span class="tag">#Tobillo</span>
+          </div>
+          <div class="video-title">Propiocepción de Tobillo</div>
+          <div class="video-desc">Entrenamiento neuromuscular para mejorar la estabilidad dinámica del complejo tobillo-pie.</div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#1f0d1a,#2d1a1f)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">5:15</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Fuerza</span>
+            <span class="tag">#Hombro</span>
+          </div>
+          <div class="video-title">Rotadores Externos Hombro</div>
+          <div class="video-desc">Protocolo de fortalecimiento del manguito rotador con progresión de carga controlada.</div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-bg" style="background:linear-gradient(135deg,#1a1f0d,#2a2d1a)"></div>
+          <div class="play-btn"></div>
+          <div class="video-duration">6:00</div>
+        </div>
+        <div class="video-info">
+          <div class="video-tags">
+            <span class="tag cyan">Colágeno</span>
+            <span class="tag">#Tendón</span>
+          </div>
+          <div class="video-title">Protocolo Síntesis Colágeno</div>
+          <div class="video-desc">Serie de carga lenta excéntrica para estimular la síntesis de colágeno tipo I en tendones.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Calculadora -->
+  <div class="section" style="padding-top:0">
+    <div class="calc-wrap">
+      <div class="calc-header">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--cyan)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/></svg>
+        <div class="calc-header-title">Herramienta: Calculadora de Carga para Tendones</div>
+      </div>
+      <div class="calc-body">
+        <div class="calc-inputs">
+          <div class="field-group">
+            <div class="field-label">Tu Peso Máximo de Trabajo</div>
+            <div class="field-row">
+              <input type="number" class="field-input" id="calc-peso" value="100" min="20" max="300">
+              <span class="field-unit">kg</span>
             </div>
-        </section>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Articulación Objetivo</div>
+            <select class="field-input" id="calc-zona">
+              <option value="rodilla">Rodilla / Tendón Rotuliano</option>
+              <option value="hombro">Hombro / Manguito Rotador</option>
+              <option value="tobillo">Tobillo / Tendón de Aquiles</option>
+              <option value="codo">Codo / Tendón Común</option>
+              <option value="lumbar">Columna Lumbar</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Frecuencia Semanal (sesiones)</div>
+            <div class="field-row">
+              <input type="number" class="field-input" id="calc-freq" value="4" min="1" max="7">
+              <span class="field-unit">ses/sem</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Años de Entrenamiento</div>
+            <div class="field-row">
+              <input type="number" class="field-input" id="calc-years" value="3" min="0" max="40">
+              <span class="field-unit">años</span>
+            </div>
+          </div>
+          <button class="btn-cyan" onclick="calcularProtocolo()">[ Calcular Protocolo ]</button>
+        </div>
 
-    </main>
+        <div class="calc-result" id="calc-result">
+          <div class="result-placeholder">
+            <div class="result-placeholder-icon">◈</div>
+            <div>Ingresa tus datos y presiona<br><strong>Calcular Protocolo</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // --- GEMINI API CONFIG ---
-        const apiKey = ""; // Runtime automatically provides this
+</div>
+<!-- END PAGE HOME -->
 
-        async function callGemini(prompt, systemInstruction = "Eres un experto en biomecánica deportiva y fisioterapia. Responde de forma técnica pero accesible, enfocado en atletas.") {
-            let retries = 5;
-            let delay = 1000;
-            
-            while (retries > 0) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            systemInstruction: { parts: [{ text: systemInstruction }] }
-                        })
-                    });
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (error) {
-                    retries--;
-                    if (retries === 0) throw error;
-                    await new Promise(r => setTimeout(r, delay));
-                    delay *= 2;
-                }
-            }
-        }
 
-        // --- MOTOR 3D (THREE.JS) ---
-        let scene, camera, renderer, humanGroup;
-        let hotspots = [];
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
-        const container = document.getElementById('canvas-container');
+<!-- ======== PAGE: TOOLS ======== -->
+<div class="page" id="page-tools">
 
-        let selectedNodeData = null;
+  <div class="tools-header">
+    <div>
+      <div class="tools-title">Selector Biomecánico</div>
+      <div class="tools-sub">Filtro diagnóstico y biblioteca de protocolos correctivos basados en evidencia.</div>
+    </div>
+    <div class="precision-badge">Modo Precisión Activo</div>
+  </div>
+  <hr class="tools-divider">
 
-        function init3D() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(30, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-            camera.position.set(0, 0, 8);
+  <div class="tools-layout">
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(container.offsetWidth, container.offsetHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(renderer.domElement);
+    <!-- Params Column -->
+    <div>
+      <div class="params-card">
+        <div class="params-header">
+          <span class="params-icon">▦</span>
+          Parámetros Clínicos
+        </div>
+        <div class="params-body">
+          <div class="param-group">
+            <div class="param-label">Complejo Articular</div>
+            <select class="param-select" id="tools-zona" onchange="updateProtocols()">
+              <option value="rodilla-ant">Rodilla Anterior</option>
+              <option value="rodilla-post">Rodilla Posterior</option>
+              <option value="hombro">Hombro</option>
+              <option value="tobillo">Tobillo/Pie</option>
+              <option value="cadera">Cadera</option>
+              <option value="lumbar">Lumbar</option>
+              <option value="codo">Codo</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <div class="param-label">Desencadenante Biomecánico</div>
+            <select class="param-select" id="tools-trigger" onchange="updateProtocols()">
+              <option value="flexion">Carga en flexión profunda (Agacharse)</option>
+              <option value="impacto">Impacto repetitivo (Correr/Saltar)</option>
+              <option value="overhead">Trabajo sobre la cabeza</option>
+              <option value="rotacion">Movimiento rotacional</option>
+              <option value="estatico">Carga estática prolongada</option>
+            </select>
+          </div>
+          <hr class="param-divider">
+          <div class="param-group">
+            <div class="param-label" style="color:var(--text-muted)">Tejidos Implicados (Estimación)</div>
+            <div class="tissues-wrap" id="tissues-wrap">
+              <span class="tissue-tag red">Tendón Rotuliano</span>
+              <span class="tissue-tag gray">Cartílago Patelofemoral</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.2);
-            scene.add(ambient);
-            const spot = new THREE.PointLight(0xffffff, 1.2, 20);
-            spot.position.set(2, 2, 5);
-            scene.add(spot);
+      <!-- Live preview -->
+      <div class="live-preview" style="margin-top:1rem">
+        <div class="live-badge">LIVE</div>
+        <div class="live-body-icon">⚕</div>
+        <div class="live-label">Vista Anterior</div>
+      </div>
+    </div>
 
-            humanGroup = new THREE.Group();
-            const boneMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
-            const muscleMat = new THREE.MeshStandardMaterial({ color: 0x440000, emissive: 0x880000, emissiveIntensity: 0.2 });
+    <!-- Results Column -->
+    <div>
+      <div class="results-header">
+        <div class="results-count">Resultados: <strong id="results-count">3 Protocolos</strong></div>
+        <div class="results-actions">
+          <button class="btn-ghost">≡ Filtrar</button>
+          <button class="btn-white">Exportar PDF</button>
+        </div>
+      </div>
 
-            function addAnatomy(geo, x, y, z) {
-                const mesh = new THREE.Mesh(geo, x >= 0 ? muscleMat : boneMat);
-                mesh.position.set(x, y, z);
-                humanGroup.add(mesh);
-            }
+      <div class="protocols-grid" id="protocols-grid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
 
-            addAnatomy(new THREE.SphereGeometry(0.25, 32, 32), -0.01, 2.2, 0);
-            addAnatomy(new THREE.SphereGeometry(0.26, 32, 32), 0.01, 2.2, 0); 
-            addAnatomy(new THREE.CylinderGeometry(0.4, 0.3, 1.2, 32), -0.2, 1.2, 0);
-            addAnatomy(new THREE.CylinderGeometry(0.4, 0.3, 1.2, 32), 0.2, 1.2, 0); 
-            addAnatomy(new THREE.CylinderGeometry(0.1, 0.08, 1.8, 16), -0.3, -0.6, 0);
-            addAnatomy(new THREE.CylinderGeometry(0.2, 0.15, 1.8, 16), 0.3, -0.6, 0); 
+  </div>
+</div>
+<!-- END PAGE TOOLS -->
 
-            scene.add(humanGroup);
 
-            createHotspot(0.3, -1.3, 0.3, 'Rodilla (Patelar)', 'Tendón Patelar', 'Inflamación por sobrecarga en excéntrico.', 'rodilla');
-            createHotspot(-0.7, 1.8, 0.2, 'Hombro', 'Cápsula Glenohumeral', 'Pinzamiento por inestabilidad escapular.', 'hombro');
-            createHotspot(0, 0.8, 0.4, 'Lumbar', 'Erectores Espinales', 'Fatiga mecánica por debilidad de estabilizadores.', 'lumbar');
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">BIOMECH LAB</div>
+  <div class="footer-links">
+    <a>Legal</a>
+    <a>Privacy Policy</a>
+    <a>Contact</a>
+    <a>Documentation</a>
+  </div>
+  <div class="footer-copy">© 2024 BIOMECH LAB. <span>PRECISION DIAGNOSTICS.</span></div>
+</footer>
 
-            container.addEventListener('mousedown', () => isDragging = true);
-            container.addEventListener('mousemove', onMouseMove);
-            container.addEventListener('click', onClick);
-            window.addEventListener('resize', onWindowResize);
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div id="toast-body"></div>
+</div>
 
-            document.getElementById('loader').style.opacity = '0';
-            animate();
-        }
 
-        function createHotspot(x, y, z, zona, tejido, estado, cat) {
-            const mesh = new THREE.Mesh(
-                new THREE.SphereGeometry(0.08, 16, 16),
-                new THREE.MeshBasicMaterial({ color: 0xffffff })
-            );
-            mesh.position.set(x, y, z);
-            mesh.userData = { zona, tejido, estado, cat };
-            humanGroup.add(mesh);
-            hotspots.push(mesh);
-        }
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+const zoneData = {
+  'rodilla-d': {
+    zona: 'Rodilla Derecha (Patelar)',
+    tejido: 'Tendón distal',
+    estado: 'Inflamación por sobrecarga',
+    riesgo: 'Moderado',
+    videos: ['Isometría Rodilla','Movilidad Cadera','Estabilidad Core']
+  },
+  'rodilla-i': {
+    zona: 'Rodilla Izquierda (Patelar)',
+    tejido: 'Tendón rotuliano',
+    estado: 'Tendinopatía reactiva',
+    riesgo: 'Moderado',
+    videos: ['Isometría Rodilla','Propiocepción','Corrección de Marcha']
+  },
+  'hombro-d': {
+    zona: 'Hombro Derecho',
+    tejido: 'Manguito rotador — Supraespinoso',
+    estado: 'Compresión subacromial',
+    riesgo: 'Alto',
+    videos: ['Rotadores Externos','Movilidad Escapular','Fortalecimiento Serrátil']
+  },
+  'hombro-i': {
+    zona: 'Hombro Izquierdo',
+    tejido: 'Manguito rotador — Infraespinoso',
+    estado: 'Inestabilidad glenohumeral',
+    riesgo: 'Moderado',
+    videos: ['Rotadores Externos','Control Motor Hombro','Ejercicio en Pared']
+  },
+  'codo-d': {
+    zona: 'Codo Derecho (Lateral)',
+    tejido: 'Tendón extensor común',
+    estado: 'Epicondilitis lateral',
+    riesgo: 'Bajo-Moderado',
+    videos: ['Excéntrico Muñeca','Movilidad Neural','Fortalecimiento Agarre']
+  },
+  'codo-i': {
+    zona: 'Codo Izquierdo',
+    tejido: 'Tendón flexor común',
+    estado: 'Epicondilitis medial',
+    riesgo: 'Bajo',
+    videos: ['Flexores Muñeca','Control Motor Codo','Estiramiento Neural']
+  },
+  'lumbar': {
+    zona: 'Columna Lumbar (L4-L5)',
+    tejido: 'Disco intervertebral / Multífidos',
+    estado: 'Sobrecarga por compresión',
+    riesgo: 'Alto',
+    videos: ['Activación Multífidos','Hip Hinge Corrección','Core Antirotación']
+  },
+  'tobillo-d': {
+    zona: 'Tobillo Derecho',
+    tejido: 'Tendón de Aquiles — Cuerpo',
+    estado: 'Tendinopatía degenerativa',
+    riesgo: 'Moderado-Alto',
+    videos: ['Excéntrico Aquiles','Dorsiflexión Banda','Propiocepción Tobillo']
+  },
+  'tobillo-i': {
+    zona: 'Tobillo Izquierdo',
+    tejido: 'Ligamento peroneal',
+    estado: 'Inestabilidad funcional',
+    riesgo: 'Bajo',
+    videos: ['Balance Unipodal','Movilidad Tobillo','Tobillo con Banda']
+  },
+};
 
-        let isDragging = false;
-        let prevX = 0;
-        function onMouseMove(e) {
-            const rect = container.getBoundingClientRect();
-            mouse.x = ((e.clientX - rect.left) / container.offsetWidth) * 2 - 1;
-            mouse.y = -((e.clientY - rect.top) / container.offsetHeight) * 2 + 1;
-            if (isDragging) humanGroup.rotation.y += (e.clientX - prevX) * 0.01;
-            prevX = e.clientX;
-        }
+const protocolsData = {
+  'rodilla-ant': [
+    { title:'Sentadilla Española Isométrica', tags:['Isometría','Carga Axial'], desc:'Carga sostenida para desensibilización del tendón rotuliano sin comprometer la articulación patelofemoral.', time:'03:00', wide:false, eff:78 },
+    { title:'Estabilización Unipodal Dinámica', tags:['Estabilidad','Propiocepción'], desc:'Mejora del control neuromuscular de la cadera y rodilla durante la fase de apoyo monopodal.', time:'02:30', wide:false, eff:65 },
+    { title:'Dorsiflexión y Rotación Interna con Banda', tags:['Movilidad','Cadera/Tobillo'], desc:'Liberación de restricciones capsulares que compensan mecánicamente sobre la articulación de la rodilla durante la flexión profunda.', time:'05:00', wide:true, eff:88 }
+  ],
+  'hombro': [
+    { title:'Press Pallof Anti-Rotación', tags:['Estabilidad','Core'], desc:'Patrón de estabilización escapulo-torácica para reducir compensaciones del hombro en empuje.', time:'04:00', wide:false, eff:72 },
+    { title:'Cuban Press Progresivo', tags:['Fuerza','Rotadores'], desc:'Reclutamiento específico del infraespinoso y redondo menor con progresión de carga controlada.', time:'05:30', wide:false, eff:84 },
+    { title:'Movilización Capsular Posterior', tags:['Movilidad','Capsular'], desc:'Técnica de self-mobilization para restaurar la rotación interna glenohumeral y reducir la impingement subacromial.', time:'03:45', wide:true, eff:91 }
+  ],
+  'tobillo': [
+    { title:'Excéntrico de Aquiles en Escalón', tags:['Excéntrico','Tendón'], desc:'Protocolo Alfredson para tendinopatía de Aquiles. Carga excéntrica progresiva con descenso lento controlado.', time:'06:00', wide:false, eff:89 },
+    { title:'Balance en Disco de Inestabilidad', tags:['Propiocepción','Neuromuscular'], desc:'Entrenamiento propioceptivo multiplanar para mejorar el control motor del complejo tobillo-pie.', time:'04:00', wide:false, eff:74 },
+    { title:'Dorsiflexión con Resistencia Elástica', tags:['Movilidad','Capsular'], desc:'Mejora del rango de dorsiflexión para normalizar la biomecánica del pie durante squats y escaleras.', time:'03:30', wide:true, eff:82 }
+  ],
+  'lumbar': [
+    { title:'Activación de Multífidos en 4 Apoyos', tags:['Activación','Profundo'], desc:'Reclutamiento específico de la musculatura estabilizadora profunda para proteger los segmentos lumbares L4-S1.', time:'05:00', wide:false, eff:86 },
+    { title:'Hip Hinge con Palo Guía', tags:['Patrón Motor','Técnica'], desc:'Corrección del patrón de bisagra de cadera para eliminar la flexión lumbar compensatoria en jalones y peso muerto.', time:'04:15', wide:false, eff:79 },
+    { title:'Serie Anti-Rotación de McGill', tags:['Core','Anti-Rotación'], desc:'Protocolo basado en evidencia del Dr. McGill para construir resistencia del core sin comprometer los discos intervertebrales.', time:'07:00', wide:true, eff:93 }
+  ]
+};
 
-        window.addEventListener('mouseup', () => isDragging = false);
+// Fallback protocols
+const defaultProtos = protocolsData['rodilla-ant'];
 
-        function onClick() {
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(hotspots);
-            if (intersects.length > 0) {
-                const d = intersects[0].object.userData;
-                selectedNodeData = d;
-                document.getElementById('display-zona').innerText = d.zona;
-                document.getElementById('display-tejido').innerText = d.tejido;
-                document.getElementById('display-estado').innerText = d.estado;
-            }
-        }
+// ─── NAVIGATION ─────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if(page === 'home') document.getElementById('nav-explorar').classList.add('active');
+  if(page === 'tools') { document.getElementById('nav-herramientas').classList.add('active'); updateProtocols(); }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
 
-        function animate() {
-            requestAnimationFrame(animate);
-            if(!isDragging) humanGroup.rotation.y += 0.002;
-            renderer.render(scene, camera);
-        }
+// ─── ZONE SELECTION ──────────────────────────────────────────
+function selectZone(zone) {
+  // Update hotspot styling
+  document.querySelectorAll('.body-hotspot').forEach(h => {
+    h.setAttribute('fill', 'rgba(0,212,255,0.12)');
+    h.setAttribute('stroke', '#00d4ff');
+  });
+  const hs = document.getElementById('hs-' + zone);
+  if(hs) {
+    hs.setAttribute('fill', 'rgba(0,212,255,0.8)');
+    hs.setAttribute('stroke', '#fff');
+  }
 
-        function onWindowResize() {
-            camera.aspect = container.offsetWidth / container.offsetHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.offsetWidth, container.offsetHeight);
-        }
+  // Update zone tags
+  document.querySelectorAll('.zone-tag').forEach(t => t.classList.remove('active'));
 
-        // --- ✨ AI FEATURES ---
+  const data = zoneData[zone];
+  if(!data) return;
 
-        async function runAIDeepAnalysis() {
-            if (!selectedNodeData) {
-                alert("Por favor, selecciona primero una zona en el modelo 3D.");
-                return;
-            }
+  const panel = document.getElementById('panel-content');
+  const riskColor = data.riesgo === 'Alto' ? 'var(--red)' : data.riesgo.includes('Moderado') ? 'var(--yellow)' : 'var(--green)';
+  panel.innerHTML = `
+    <div class="panel-row">
+      <div class="panel-item"><span class="panel-item-label">Zona:</span> <span class="panel-item-value highlight">${data.zona}</span></div>
+      <div class="panel-item"><span class="panel-item-label">Tejido:</span> <span class="panel-item-value">${data.tejido}</span></div>
+      <div class="panel-item"><span class="panel-item-label">Estado:</span> <span class="panel-item-value warn">${data.estado}</span></div>
+      <div class="panel-item"><span class="panel-item-label">Riesgo:</span> <span class="panel-item-value" style="color:${riskColor}">${data.riesgo}</span></div>
+    </div>
+    <a class="btn-cyan" onclick="showPage('tools')">Botón: Ver Videos de Corrección ›</a>
+  `;
+  showToast('Zona seleccionada', data.zona + ' — ' + data.estado);
+}
 
-            openAIModal();
-            document.getElementById('ai-content').innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                    <span class="mono text-xs uppercase tracking-widest">Generando análisis bio-científico para ${selectedNodeData.zona}...</span>
-                </div>
-            `;
+// ─── CALCULATOR ──────────────────────────────────────────────
+function calcularProtocolo() {
+  const peso = parseFloat(document.getElementById('calc-peso').value) || 80;
+  const zona = document.getElementById('calc-zona').value;
+  const freq = parseInt(document.getElementById('calc-freq').value) || 3;
+  const years = parseInt(document.getElementById('calc-years').value) || 2;
 
-            const prompt = `Analiza profundamente esta lesión: Zona: ${selectedNodeData.zona}, Tejido: ${selectedNodeData.tejido}, Estado: ${selectedNodeData.estado}. Explica la biomecánica detrás de la lesión, por qué sucede en atletas de fuerza, y propón una fase de rehabilitación de 3 días basada en carga progresiva y síntesis de colágeno. Responde en formato estructurado.`;
+  // Simple scoring
+  const cargaBase = peso * 0.3;
+  const riesgoFreq = freq > 5 ? 75 : freq > 3 ? 50 : 30;
+  const riesgoAnos = years < 1 ? 70 : years < 3 ? 40 : 25;
+  const riesgoTotal = Math.min(Math.round((riesgoFreq + riesgoAnos) / 2), 100);
+  const scoreColor = riesgoTotal > 65 ? '#ff4757' : riesgoTotal > 40 ? '#ffd32a' : '#00c896';
+  const scoreLabel = riesgoTotal > 65 ? 'Riesgo Elevado — Ajustar carga' : riesgoTotal > 40 ? 'Riesgo Moderado — Monitorear' : 'Riesgo Bajo — Continuar';
 
-            try {
-                const analysis = await callGemini(prompt);
-                document.getElementById('ai-content').innerHTML = analysis.replace(/\n/g, '<br>');
-            } catch (err) {
-                document.getElementById('ai-content').innerHTML = "Error al conectar con el cerebro BioMech. Intenta de nuevo.";
-            }
-        }
+  const cargaIsometrica = Math.round(cargaBase * 0.7);
+  const cargaEcentrica = Math.round(cargaBase * 0.85);
+  const descarga = Math.round(freq * 0.25);
 
-        async function generateAIDeload() {
-            const weight = document.getElementById('weight-input').value;
-            const freq = document.getElementById('freq-input').value;
+  const zoneNames = {rodilla:'Tendón Rotuliano',hombro:'Manguito Rotador',tobillo:'Tendón de Aquiles',codo:'Tendón Extensor',lumbar:'Musculatura Lumbar'};
+  const protocols = {
+    rodilla: 'Isometría española + Excéntrico decline squat 3x15 @70% BW',
+    hombro: 'Cuban Press progresivo + Rotadores externos con banda 4x12',
+    tobillo: 'Alfredson excéntrico en escalón 3x15 + Propiocepción',
+    codo: 'Excéntrico muñeca + Movilización neural mediana 3x10',
+    lumbar: 'McGill Big 3 + Hip hinge pattern 4x8 + Respiración diafragmática'
+  };
 
-            openAIModal();
-            document.getElementById('ai-content').innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                    <span class="mono text-xs uppercase tracking-widest">Calculando semana de descarga inteligente...</span>
-                </div>
-            `;
+  document.getElementById('calc-result').innerHTML = `
+    <div class="result-title">Resultado del Análisis</div>
+    <div class="result-score" style="color:${scoreColor}">${riesgoTotal}<span style="font-size:1.5rem">%</span></div>
+    <div class="result-label" style="color:${scoreColor}">${scoreLabel}</div>
+    <div class="result-bars">
+      <div class="result-bar-row">
+        <div class="result-bar-label"><span>Carga Isométrica Sugerida</span><span>${cargaIsometrica} kg</span></div>
+        <div class="result-bar-track"><div class="result-bar-fill ok" style="width:${Math.min(cargaIsometrica/1.5,100)}%"></div></div>
+      </div>
+      <div class="result-bar-row">
+        <div class="result-bar-label"><span>Carga Excéntrica Máx.</span><span>${cargaEcentrica} kg</span></div>
+        <div class="result-bar-track"><div class="result-bar-fill" style="width:${Math.min(cargaEcentrica/1.5,100)}%"></div></div>
+      </div>
+      <div class="result-bar-row">
+        <div class="result-bar-label"><span>Días de Descarga/Sem.</span><span>${descarga} días</span></div>
+        <div class="result-bar-track"><div class="result-bar-fill warn" style="width:${descarga/7*100}%"></div></div>
+      </div>
+    </div>
+    <div class="result-protocol">
+      <div class="protocol-title">${zoneNames[zona] || zona} — Protocolo Recomendado</div>
+      <div class="protocol-desc">${protocols[zona] || 'Protocolo personalizado según parámetros ingresados.'}</div>
+    </div>
+  `;
+}
 
-            const prompt = `Usuario con 1RM de ${weight}kg y frecuencia de ${freq} días/semana. Genera un plan de "Semana de Descarga" (Deload) enfocado específicamente en la salud de los tendones y recuperación sistémica. Incluye porcentajes de carga sugeridos y tipos de contracción (isométrica, excéntrica).`;
+// ─── TOOLS PAGE ──────────────────────────────────────────────
+function updateProtocols() {
+  const zona = document.getElementById('tools-zona')?.value || 'rodilla-ant';
+  const trigger = document.getElementById('tools-trigger')?.value || 'flexion';
 
-            try {
-                const plan = await callGemini(prompt);
-                document.getElementById('ai-content').innerHTML = `
-                    <h4 class="text-red-500 font-bold uppercase mb-4">✨ Tu Plan de Descarga Bio-Optimizado</h4>
-                    ${plan.replace(/\n/g, '<br>')}
-                `;
-            } catch (err) {
-                document.getElementById('ai-content').innerHTML = "No se pudo generar el plan. Verifica tu conexión.";
-            }
-        }
+  const tissueMap = {
+    'rodilla-ant': ['<span class="tissue-tag red">Tendón Rotuliano</span><span class="tissue-tag gray">Cartílago Patelofemoral</span>'],
+    'rodilla-post': ['<span class="tissue-tag red">Tendón Isquiotibial</span><span class="tissue-tag gray">Menisco Posterior</span>'],
+    'hombro': ['<span class="tissue-tag red">Supraespinoso</span><span class="tissue-tag gray">Bursa Subacromial</span><span class="tissue-tag gray">Infraespinoso</span>'],
+    'tobillo': ['<span class="tissue-tag red">Tendón de Aquiles</span><span class="tissue-tag gray">Ligamento Lateral</span>'],
+    'cadera': ['<span class="tissue-tag red">Labrum Acetabular</span><span class="tissue-tag gray">Flexores de Cadera</span>'],
+    'lumbar': ['<span class="tissue-tag red">Disco L4-L5</span><span class="tissue-tag gray">Multífidos</span><span class="tissue-tag gray">Cuadrado Lumbar</span>'],
+    'codo': ['<span class="tissue-tag red">Tendón Extensor Común</span><span class="tissue-tag gray">Ligamento Colateral</span>'],
+  };
 
-        async function askAISymptoms() {
-            const query = document.getElementById('ai-search').value;
-            if (!query) return;
+  const tw = document.getElementById('tissues-wrap');
+  if(tw) tw.innerHTML = tissueMap[zona] || tissueMap['rodilla-ant'];
 
-            document.getElementById('ai-search').placeholder = "Consultando... ✨";
-            
-            const prompt = `El usuario describe este síntoma: "${query}". Basado en tu conocimiento médico-deportivo, ¿qué zona anatómica de las siguientes es la más probable afectada? (Rodilla, Hombro, Lumbar). Responde SOLO el nombre de la zona.`;
+  const protos = protocolsData[zona] || protocolsData['rodilla-ant'];
+  const count = protos.length;
+  document.getElementById('results-count').innerHTML = `<strong>${count} Protocolo${count !== 1 ? 's' : ''}</strong>`;
 
-            try {
-                const zone = await callGemini(prompt, "Eres un clasificador anatómico. Responde solo con una palabra.");
-                const targetZone = zone.trim().toLowerCase();
-                
-                let found = hotspots.find(h => h.userData.cat.includes(targetZone) || targetZone.includes(h.userData.cat));
-                
-                if (found) {
-                    selectedNodeData = found.userData;
-                    document.getElementById('display-zona').innerText = selectedNodeData.zona;
-                    document.getElementById('display-tejido').innerText = selectedNodeData.tejido;
-                    document.getElementById('display-estado').innerText = selectedNodeData.estado;
-                    document.getElementById('ai-search').value = "";
-                    document.getElementById('ai-search').placeholder = `✨ Detectado: ${selectedNodeData.zona}`;
-                } else {
-                    document.getElementById('ai-search').placeholder = "✨ No detectado, intenta ser más específico.";
-                }
-            } catch (err) {
-                document.getElementById('ai-search').placeholder = "✨ Error en consulta.";
-            }
-        }
+  const grid = document.getElementById('protocols-grid');
+  if(!grid) return;
+  grid.innerHTML = protos.map(p => `
+    <div class="protocol-card ${p.wide ? 'wide' : ''}">
+      <div class="protocol-thumb">
+        <div class="proto-bg" style="background:linear-gradient(135deg,#0d1520,#1a2535)"></div>
+        <div class="proto-play"></div>
+        <div class="proto-time">${p.time}</div>
+      </div>
+      <div class="protocol-info">
+        <div>
+          <div class="proto-tags">${p.tags.map(t => `<span class="proto-tag">${t}</span>`).join('')}</div>
+          <div class="proto-title">${p.title}</div>
+          <div class="proto-desc">${p.desc}</div>
+        </div>
+        ${p.wide ? `
+          <div class="proto-effectiveness">
+            <div class="effectiveness-bar-track"><div class="effectiveness-bar-fill" style="width:${p.eff}%"></div></div>
+            <div class="effectiveness-label">Alta Efectividad</div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+}
 
-        // --- UI HELPERS ---
-        function openAIModal() { document.getElementById('ai-modal').classList.remove('hidden'); }
-        function closeAIModal() { document.getElementById('ai-modal').classList.add('hidden'); }
-        function scrollToVideos() { document.getElementById('selector').scrollIntoView({ behavior: 'smooth' }); }
+// ─── TOAST ───────────────────────────────────────────────────
+let toastTimer;
+function showToast(title, body) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent = body;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
 
-        function calculateRisk() {
-            const w = parseFloat(document.getElementById('weight-input').value);
-            const f = parseInt(document.getElementById('freq-input').value);
-            const res = document.getElementById('result-box');
-            const score = document.getElementById('score-val');
-            const sug = document.getElementById('sug-text');
-
-            res.classList.remove('hidden');
-            const finalScore = ( (w * 0.05) + (f * 1.5) ).toFixed(1);
-            score.innerText = finalScore;
-
-            if (finalScore > 12) {
-                score.className = "text-6xl font-black text-red-600 mt-2 tracking-tighter";
-                sug.innerHTML = "<strong>RIESGO ALTO:</strong> Superas la capacidad de remodelación. Recomendamos descarga.";
-            } else {
-                score.className = "text-6xl font-black text-green-500 mt-2 tracking-tighter";
-                sug.innerHTML = "<strong>RIESGO BAJO:</strong> Equilibrio óptimo. Mantén protocolos.";
-            }
-        }
-
-        window.onload = init3D;
-    </script>
+// Init
+updateProtocols();
+</script>
 </body>
 </html>
